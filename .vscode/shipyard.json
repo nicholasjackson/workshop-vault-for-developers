@@ -1,6 +1,6 @@
 {
   "tabs": [
-    {"uri": "http://1.docs.shipyard.run", "title": "Docs"}
+    {"uri": "https://0-workshop-docs.demo.gs/", "title": "Docs"}
   ],
   "terminals": [
     {"name": "Vault", "viewColumn": 1}

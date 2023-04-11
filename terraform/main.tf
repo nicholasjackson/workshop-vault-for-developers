@@ -85,6 +85,22 @@ resource "cloudflare_record" "dns-docs" {
   proxied = true
 }
 
+resource "cloudflare_record" "dns-vscode-noproxy" {
+  zone_id = "8542f7e55a8c0cd9c215478cf157e613"
+  name    = "1-workshop-vscode"
+  value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
+  type    = "A"
+  proxied = false
+}
+
+resource "cloudflare_record" "dns-docs-noproxy" {
+  zone_id = "8542f7e55a8c0cd9c215478cf157e613"
+  name    = "1-workshop-docs"
+  value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
+  type    = "A"
+  proxied = false
+}
+
 output "public_ips" {
   value = [google_compute_instance.default.*.network_interface.0.access_config.0.nat_ip]
 }

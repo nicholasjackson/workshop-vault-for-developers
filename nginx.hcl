@@ -12,6 +12,7 @@ template "nginx_config" {
         proxy_set_header Host $host;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection upgrade;
+        proxy_set_header Accept-Encoding gzip;
       }
     }
 
@@ -26,6 +27,7 @@ template "nginx_config" {
         proxy_set_header Host $host;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection upgrade;
+        proxy_set_header Accept-Encoding gzip;
       }
     }
     
@@ -73,7 +75,7 @@ container "nginx" {
   }
 
   volume {
-    source      = "${data("nginx")}/nginx.conf"
+    source = "${data("nginx")}/nginx.conf"
     destination = "/etc/nginx/conf.d/default.conf"
   }
 }
