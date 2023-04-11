@@ -1,0 +1,9 @@
+{
+  "tabs": [
+    {"uri": "http://localhost:8200", "title": "Vault"},
+    {"uri": "http://localhost:3000", "title": "Docs"}
+  ],
+  "terminals": [
+    {"name": "Vault", "viewColumn": 1}
+  ]
+}
