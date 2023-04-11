@@ -10,7 +10,7 @@ container "vscode" {
   port {
     local  = 8000
     remote = 8000
-    host   = 80
+    host   = 8000
   }
 
   env {
