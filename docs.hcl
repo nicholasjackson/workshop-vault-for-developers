@@ -11,5 +11,6 @@ docs "docs" {
 
   network {
     name = "network.dc1"
+    ip_address = "10.5.0.201"
   }
 }

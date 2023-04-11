@@ -21,7 +21,7 @@ template "nginx_config" {
       server_name ~^([0-9]+)${var.nginx_docs_domain_suffix};
 
       location / {
-        proxy_pass http://docs.docs.shipyard.run;
+        proxy_pass http://10.5.0.201;
         proxy_http_version 1.1;
       }
     }
@@ -32,7 +32,7 @@ template "nginx_config" {
       server_name ~^([0-9]+)${var.nginx_code_domain_suffix};
 
       location / {
-        proxy_pass http://vscode.container.shipyard.run:8000;
+        proxy_pass http://10.5.0.200:8000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header Upgrade $http_upgrade;
