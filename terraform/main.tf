@@ -15,6 +15,10 @@ variable "instances" {
   default = 5
 }
 
+variable "domain" {
+  default = "demo.gs"
+}
+
 provider "cloudflare" {
 }
 
@@ -68,7 +72,12 @@ resource "google_compute_instance" "default" {
     
   }
 
-  metadata_startup_script = templatefile("${path.module}/cloud-init.sh",{passcode=random_id.rnd[count.index].hex})
+  metadata_startup_script = templatefile(
+    "${path.module}/cloud-init.sh",{
+      passcode=random_id.rnd[count.index].hex
+      code_suffix="-workshop-vscode.${var.domain}"
+      docs_suffix="-workshop-docs.${var.domain}"
+    })
 
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
