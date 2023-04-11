@@ -10,6 +10,12 @@ template "nginx_config" {
 
   source = <<-EOF
     server {
+      listen       80  default_server;
+      server_name  _;
+      return       444;
+    }
+
+    server {
       listen 80;
       listen [::]:80;
       server_name ~^([0-9]+)${var.nginx_docs_domain_suffix};
