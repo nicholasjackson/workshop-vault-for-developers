@@ -82,11 +82,11 @@ Create a new file in the folder `working` called `payments.hcl` and add the cont
 You can write the policy to Vault using the `vault policy write <name> <location>` command. Run the following command which will create a policy named `payments` from the example file.
 
 <VSCodeTerminal target="Vault">
-  <Command>vault policy write payments ./working/payments.hcl</Command>
+  <Command>vault policy write payments payments.hcl</Command>
 </VSCodeTerminal>
 
 ```shell
-vault policy write payments ./working/payments.hcl
+vault policy write payments payments.hcl
 ```
 
 ### Assigning Vault policy to Kubernetes Service Accounts 

@@ -22,16 +22,17 @@ spec:
         app: payments
       annotations:
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-inject-template-db-app: |
+        vault.hashicorp.com/role: "payments"
+        vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
+        vault.hashicorp.com/agent-inject-template-config: |
           {
           {{ with secret "database/creds/db-app" -}}
           "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
           {{- end }}
-          {{ with secret "kv2/data/payments" -}}
-          "api_key": "{{ .Data.api_key }}"
+          {{- with secret "kv2/data/payments" }}
+          "api_key": "{{ .Data.data.api_key }}"
           {{- end }}
           }
-        vault.hashicorp.com/role: "payments"
     spec:
       serviceAccountName: payments
       containers:

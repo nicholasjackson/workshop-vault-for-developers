@@ -1,6 +1,6 @@
 {
   "tabs": [
-    {"uri": "https://0-workshop-docs.demo.gs/", "title": "Docs"}
+    {"uri": "http://localhost:3000/", "title": "Docs"}
   ],
   "terminals": [
     {"name": "Vault", "viewColumn": 1}

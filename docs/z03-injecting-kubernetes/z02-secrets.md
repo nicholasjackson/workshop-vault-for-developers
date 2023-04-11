@@ -87,14 +87,14 @@ spec:
         app: payments
       annotations:
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-inject-secret-db-config: "database/creds/db-app"
-        vault.hashicorp.com/agent-inject-template-db-config: |
+        vault.hashicorp.com/role: "payments"
+        vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
+        vault.hashicorp.com/agent-inject-template-config: |
           {
           {{ with secret "database/creds/db-app" -}}
           "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard"
           {{- end }}
           }
-        vault.hashicorp.com/role: "payments"
     spec:
       serviceAccountName: payments
       containers:
@@ -120,7 +120,7 @@ You can see this in action by running the following command; you will see the se
   <Command>
     kubectl exec -it \
       $(kubectl get pods --selector "app=payments" -o jsonpath="&#123;.items[0].metadata.name}") \
-      -c payments cat /vault/secrets/db-config
+      -c payments cat /vault/secrets/config
   </Command>
 </VSCodeTerminal>
 
@@ -137,28 +137,37 @@ Since the deployment contains two pods, you can also run the following command t
   <Command>
     kubectl exec -it \
       $(kubectl get pods --selector "app=payments" -o jsonpath="&#123;.items[1].metadata.name}") \
-      -c payments cat /vault/secrets/db-config
+      -c payments cat /vault/secrets/config
   </Command>
 </VSCodeTerminal>
 
 ```
 kubectl exec -it \
 $(kubectl get pods --selector "app=payments" -o jsonpath="{.items[1].metadata.name}") \
--c web cat /vault/secrets/db-config
+-c web cat /vault/secrets/config
 ```
 
 ## Challenge
 
 Now you have seen how to create config files for your applications using 
-secrets from Vault. Modify this working example to add the `api_key`
-secrets from the `payments` static secret engine version 2.
+secrets from Vault. Modify this working example to add the `api_key` secrets 
+from the `payments` static secret engine version 2.
+
+You can find the docs for Vault Agent Templates at the following location:
+[https://developer.hashicorp.com/vault/docs/agent/template#example-template](https://developer.hashicorp.com/vault/docs/agent/template#example-template)
+
+You will find the syntax you need to inject a secret from the `kv2` static 
+secrets engine.
+
+If you needs a hint at what the secret data looks like you can always
+query Vault and output the secret as JSON.
 
 <VSCodeTerminal target="Vault">
-  <Command>vault kv get kv2/payments</Command>
+  <Command>vault kv get --format=json kv2/payments </Command>
 </VSCodeTerminal>
 
 ```shell
-vault kv get kv2/payments
+vault kv get --format=json kv2/payments
 ```
 
 <details>
@@ -172,16 +181,17 @@ vault kv get kv2/payments
   ```yaml
   annotations:
     vault.hashicorp.com/agent-inject: "true"
-    vault.hashicorp.com/agent-inject-secret-db-config: "database/creds/db-app"
-    vault.hashicorp.com/agent-inject-template-db-config: |
+    vault.hashicorp.com/role: "payments"
+    vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
+    vault.hashicorp.com/agent-inject-template-config: |
       {
       {{ with secret "database/creds/db-app" -}}
       "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
       {{- end }}
-      {{ with secret "kv2/data/payments"
-      "api_key": "{{ .Data.api_key }}"
+      {{- with secret "kv2/data/payments"
+      "api_key": "{{ .Data.data.api_key }}"
       {{- end }}
       }
   ```
-
 </details>
+

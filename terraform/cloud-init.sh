@@ -23,4 +23,5 @@ apt update && apt install -y jq vim net-tools \
 shipyard run github.com/nicholasjackson/workshop-vault-for-developers \
   --var "vscode_password=${passcode}" \
   --var "nginx_docs_domain_suffix=${docs_suffix}" \
-  --var "nginx_code_domain_suffix=${code_suffix}"
+  --var "nginx_code_domain_suffix=${code_suffix}" \
+  --var "docs_location=${docs_location}"

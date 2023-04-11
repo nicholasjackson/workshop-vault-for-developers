@@ -77,6 +77,7 @@ resource "google_compute_instance" "default" {
       passcode=random_id.rnd[count.index].hex
       code_suffix="-workshop-vscode.${var.domain}"
       docs_suffix="-workshop-docs.${var.domain}"
+      docs_location="https://${count.index}-workshop-docs.${var.domain}/"
     })
 
   service_account {

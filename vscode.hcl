@@ -2,11 +2,30 @@ variable "vscode_password" {
   default = "testing123"
 }
 
+variable "docs_location" {
+  default = "http://localhost:3000/"
+}
+
+template "vscode" {
+  source = <<-EOF
+  {
+    "tabs": [
+      {"uri": "${var.docs_location}", "title": "Docs"}
+    ],
+    "terminals": [
+      {"name": "Vault", "viewColumn": 1}
+    ]
+  }
+  EOF
+
+  destination = "${data("vscode")}/shipyard.json"
+}
+
 container "vscode" {
-  depends_on = ["k8s_cluster.dc1"]
+  depends_on = ["k8s_cluster.dc1", "template.vscode"]
 
   network {
-    name = "network.dc1"
+    name       = "network.dc1"
     ip_address = "10.5.0.200"
   }
 
@@ -41,12 +60,17 @@ container "vscode" {
   }
 
   volume {
-    source      = "."
+    source      = "./working"
     destination = "/working"
   }
 
   volume {
     source      = k8s_config_docker("dc1")
     destination = k8s_config_docker("dc1")
+  }
+
+  volume {
+    destination = "/working/.vscode"
+    source      = data("vscode")
   }
 }
