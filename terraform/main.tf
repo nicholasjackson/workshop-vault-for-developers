@@ -11,6 +11,10 @@ terraform {
   }
 }
 
+variable "instances" {
+  default = 5
+}
+
 provider "cloudflare" {
 }
 
@@ -35,11 +39,13 @@ resource "google_compute_firewall" "rules" {
 }
 
 resource "random_id" "rnd" {
+  count = var.instances
+
   byte_length = 8
 }
 
 resource "google_compute_instance" "default" {
-  count = 1
+  count = var.instances
 
   name         = "vault-workshop-${count.index}"
   machine_type = "e2-medium"
@@ -62,7 +68,7 @@ resource "google_compute_instance" "default" {
     
   }
 
-  metadata_startup_script = templatefile("${path.module}/cloud-init.sh",{passcode=random_id.rnd.b64_std})
+  metadata_startup_script = templatefile("${path.module}/cloud-init.sh",{passcode=random_id.rnd[count.index].hex})
 
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
@@ -70,21 +76,29 @@ resource "google_compute_instance" "default" {
 }
 
 resource "cloudflare_record" "dns-vscode" {
+  count = var.instances
+
   zone_id = "8542f7e55a8c0cd9c215478cf157e613"
-  name    = "0-workshop-vscode"
-  value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
+  name    = "${count.index}-workshop-vscode"
+  value   = google_compute_instance.default[count.index].network_interface.0.access_config.0.nat_ip
   type    = "A"
   proxied = true
 }
 
 resource "cloudflare_record" "dns-docs" {
+  count = var.instances
+
   zone_id = "8542f7e55a8c0cd9c215478cf157e613"
-  name    = "0-workshop-docs"
-  value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
+  name    = "${count.index}-workshop-docs"
+  value   = google_compute_instance.default[count.index].network_interface.0.access_config.0.nat_ip
   type    = "A"
   proxied = true
 }
 
 output "public_ips" {
   value = [google_compute_instance.default.*.network_interface.0.access_config.0.nat_ip]
+}
+
+output "codes" {
+  value = [random_id.rnd.*.hex]
 }

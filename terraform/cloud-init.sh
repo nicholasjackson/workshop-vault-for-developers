@@ -20,5 +20,4 @@ apt update && apt install -y jq vim net-tools \
   shipyard
 
 # Run Shipyard
-echo "test new"
-shipyard run github.com/nicholasjackson/workshop-vault-for-developers -var "vscode_password=${passcode}"
+shipyard run github.com/nicholasjackson/workshop-vault-for-developers --var "vscode_password=${passcode}"

@@ -24,7 +24,7 @@ container "vscode" {
 
   env {
     key   = "KUBECONFIG"
-    value = "/root/.shipyard/config/dc1/kubeconfig-docker.yaml"
+    value = k8s_config_docker("dc1")
   }
 
   env {
@@ -44,6 +44,6 @@ container "vscode" {
 
   volume {
     source      = k8s_config_docker("dc1")
-    destination = "/root/.shipyard/config/dc1/kubeconfig-docker.yaml"
+    destination = k8s_config_docker("dc1")
   }
 }
