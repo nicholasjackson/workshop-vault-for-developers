@@ -3,6 +3,8 @@ variable "vscode_password" {
 }
 
 container "vscode" {
+  depends_on = ["k8s_cluster.dc1"]
+
   network {
     name = "network.dc1"
   }
