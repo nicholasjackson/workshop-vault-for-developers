@@ -69,7 +69,7 @@ resource "google_compute_instance" "default" {
   }
 }
 
-resource "cloudflare_record" "worker0" {
+resource "cloudflare_record" "dns-vscode" {
   zone_id = "8542f7e55a8c0cd9c215478cf157e613"
   name    = "0-workshop-vscode"
   value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
@@ -77,7 +77,7 @@ resource "cloudflare_record" "worker0" {
   proxied = true
 }
 
-resource "cloudflare_record" "worker0" {
+resource "cloudflare_record" "dns-docs" {
   zone_id = "8542f7e55a8c0cd9c215478cf157e613"
   name    = "0-workshop-docs"
   value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip

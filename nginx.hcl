@@ -9,6 +9,9 @@ template "nginx_config" {
       location / {
         proxy_pass http://docs.docs.shipyard.run;
         proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection upgrade;
       }
     }
 
@@ -20,6 +23,9 @@ template "nginx_config" {
       location / {
         proxy_pass http://vscode.container.shipyard.run:8000;
         proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection upgrade;
       }
     }
     
@@ -67,7 +73,7 @@ container "nginx" {
   }
 
   volume {
-    source = "${data("nginx")}/nginx.conf"
+    source      = "${data("nginx")}/nginx.conf"
     destination = "/etc/nginx/conf.d/default.conf"
   }
 }
