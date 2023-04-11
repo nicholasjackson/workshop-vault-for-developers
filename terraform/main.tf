@@ -12,7 +12,7 @@ terraform {
 }
 
 variable "instances" {
-  default = 5
+  default = 25
 }
 
 variable "domain" {
@@ -104,10 +104,16 @@ resource "cloudflare_record" "dns-docs" {
   proxied = true
 }
 
-output "public_ips" {
-  value = [google_compute_instance.default.*.network_interface.0.access_config.0.nat_ip]
+//output "public_ips" {
+//  value = [google_compute_instance.default.*.network_interface.0.access_config.0.nat_ip]
+//}
+
+output "auth_codes" {
+  value = [random_id.rnd.*.hex]
 }
 
-output "codes" {
-  value = [random_id.rnd.*.hex]
+output "links" {
+  value = [
+    for pass in random_id.rnd.*.hex : "https://${index(random_id.rnd.*.hex,pass)}-workshop-vscode.${var.domain}?tkn=${pass}&folder=/working"
+  ]
 }
