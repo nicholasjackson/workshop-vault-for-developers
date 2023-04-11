@@ -1,10 +1,14 @@
+variable "vscode_password" {
+  default = "testing123"
+}
+
 container "vscode" {
   network {
     name = "network.dc1"
   }
 
   image {
-    name = "shipyardrun/docker-devs-vscode:v0.0.1"
+    name = "shipyardrun/docker-devs-vscode:v0.0.2"
   }
 
   port {
@@ -28,8 +32,18 @@ container "vscode" {
     value = "http://${shipyard_ip()}:8200"
   }
 
+  env {
+    key   = "AUTH_KEY"
+    value = var.vscode_password
+  }
+
   volume {
-    source = "."
+    source      = "."
     destination = "/working"
+  }
+
+  volume {
+    source      = k8s_config_docker("dc1")
+    destination = "/root/.shipyard/config/dc1/kubeconfig-docker.yaml"
   }
 }

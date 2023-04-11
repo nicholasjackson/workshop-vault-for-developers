@@ -35,7 +35,7 @@ resource "google_compute_firewall" "rules" {
 }
 
 resource "random_id" "rnd" {
-  byte_length = 4
+  byte_length = 8
 }
 
 resource "google_compute_instance" "default" {
@@ -62,7 +62,7 @@ resource "google_compute_instance" "default" {
     
   }
 
-  metadata_startup_script = templatefile("${path.module}/cloud-init.sh",{})
+  metadata_startup_script = templatefile("${path.module}/cloud-init.sh",{passcode=random_id.rnd.b64_std})
 
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
@@ -83,22 +83,6 @@ resource "cloudflare_record" "dns-docs" {
   value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
   type    = "A"
   proxied = true
-}
-
-resource "cloudflare_record" "dns-vscode-noproxy" {
-  zone_id = "8542f7e55a8c0cd9c215478cf157e613"
-  name    = "1-workshop-vscode"
-  value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
-  type    = "A"
-  proxied = false
-}
-
-resource "cloudflare_record" "dns-docs-noproxy" {
-  zone_id = "8542f7e55a8c0cd9c215478cf157e613"
-  name    = "1-workshop-docs"
-  value   = google_compute_instance.default.0.network_interface.0.access_config.0.nat_ip
-  type    = "A"
-  proxied = false
 }
 
 output "public_ips" {

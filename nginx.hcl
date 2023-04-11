@@ -30,28 +30,6 @@ template "nginx_config" {
         proxy_set_header Accept-Encoding gzip;
       }
     }
-    
-    server {
-      listen 80;
-      listen [::]:80;
-      server_name ~^([0-9]+).docs.shipyard.run;
-
-      location / {
-        proxy_pass http://docs.docs.shipyard.run;
-        proxy_http_version 1.1;
-      }
-    }
-
-    server {
-      listen 80;
-      listen [::]:80;
-      server_name ~^([0-9]+).container.shipyard.run;
-
-      location / {
-        proxy_pass http://vscode.container.shipyard.run:8000;
-        proxy_http_version 1.1;
-      }
-    }
   EOF
 
   destination = "${data("nginx")}/nginx.conf"
@@ -75,7 +53,7 @@ container "nginx" {
   }
 
   volume {
-    source = "${data("nginx")}/nginx.conf"
+    source      = "${data("nginx")}/nginx.conf"
     destination = "/etc/nginx/conf.d/default.conf"
   }
 }

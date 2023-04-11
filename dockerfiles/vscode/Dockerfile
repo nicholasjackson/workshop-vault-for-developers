@@ -25,7 +25,8 @@ RUN wget -O vault.zip https://releases.hashicorp.com/vault/1.13.1/vault_1.13.1_l
 
 # Install kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${TARGETARCH}/kubectl" && \
-  mv ./kubectl /usr/local/bin
+  mv ./kubectl /usr/local/bin && \
+  chmod +x /usr/local/bin/kubectl
 
 RUN wget -O terraform.zip https://releases.hashicorp.com/vault/1.13.1/vault_1.13.1_linux_${TARGETARCH}.zip && \
   unzip vault.zip && \
@@ -52,4 +53,7 @@ RUN go install github.com/ramya-rao-a/go-outline@v0.0.0-20210608161538-9736a4bde
   go install golang.org/x/tools/gopls@latest && \
   go install github.com/ramya-rao-a/go-outline@v0.0.0-20210608161538-9736a4bde949
 
-ENTRYPOINT ["code-server", "serve-local","--accept-server-license-terms","--without-connection-token","--host","0.0.0.0","--verbose"]
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
