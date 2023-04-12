@@ -196,7 +196,7 @@ template {
   destination = "cert.pem"
 
   exec {
-    command = "kill -HUP $(cat ./working/app/app.pid)"
+    command = "kill -HUP $(cat ./working/app/app.pid) | true"
   }
 }
 ```

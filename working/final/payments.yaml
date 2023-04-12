@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payments
+automountServiceAccountToken: true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-deployment
+  labels:
+    app: payments
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "payments"
+        vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
+        vault.hashicorp.com/agent-inject-template-config: |
+          {
+          {{ with secret "database/creds/db-app" -}}
+          "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
+          {{- end }}
+          {{- with secret "kv2/data/payments" }}
+          "api_key": "{{ .Data.data.api_key }}"
+          {{- end }}
+          }
+    spec:
+      serviceAccountName: payments
+      containers:
+        - name: payments
+          image: nicholasjackson/fake-service:v0.25.1

@@ -13,7 +13,9 @@ template "vscode" {
       {"uri": "${var.docs_location}", "title": "Docs"}
     ],
     "terminals": [
-      {"name": "Vault", "viewColumn": 1}
+      {"name": "Vault", "viewColumn": 1},
+      {"name": "App", "viewColumn": 1},
+      {"name": "Agent", "viewColumn": 1}
     ]
   }
   EOF

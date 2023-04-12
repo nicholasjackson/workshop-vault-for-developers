@@ -165,6 +165,60 @@ You should see the following output from the command.
 ```
 
 Before you learn how to integrate this into your applications, let's see
-how you can use the same process to generate HMACs of data.
+how you can use the same process to generate HMACs from your data.
 
-## Creating and comparing HMAC`ed data
+## Generating HMACs
+
+A Hash Based Message Authentication Code (HMAC) creates a signature for 
+a piece of data using a cryptographic hash and symetrical encryption using 
+an encryption key. It provides lower computation and greater speed over
+hashing algorythms like bcrypt and scrypt at the expense of requiring 
+an encryption key to be share between systems that hash data and those which
+verify the data.
+
+### Challenge
+
+Why don't you spend 5 minutes and use Vault to HMAC the following message.
+
+```shell
+But a person is not made for defeat. A person can be destroyed but not defeated.
+
+---
+Ernest Hemingway
+```
+
+You can find the documentation for HMAC at the following location:
+
+https://developer.hashicorp.com/vault/api-docs/secret/transit#generate-hmac
+
+For convenience a text file containing the message is stored in `message.txt`
+
+<details>
+  <summary>Answer</summary>
+
+Did you solve the problem?
+
+Your solution should look something like the following.
+
+<VSCodeTerminal target="Vault">
+  <Command>
+    vault write \
+      transit/hmac/payments \
+      input=$(cat message.txt | base64)
+  </Command>
+</VSCodeTerminal>
+
+```shell
+vault write \
+  transit/hmac/payments \
+  input=$(cat message.txt | base64)
+```
+
+```shell
+Key     Value
+---     -----
+hmac    vault:v1:6ok9429ec8BGq5RIaIhHHNwmc3KnjdCPPKhmHdJ/DIc=
+``` 
+</details>
+
+Let's now see how transit can be used with the example application.
