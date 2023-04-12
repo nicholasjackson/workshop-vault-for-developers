@@ -9,3 +9,7 @@ path "kv2/data/payments" {
 path "database/creds/db-app" {
   capabilities = ["read"]
 }
+
+path "pki/issue/payments" {
+  capabilities = ["update"]
+}

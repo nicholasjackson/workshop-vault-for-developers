@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
-	"encoding/base64"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,18 +18,21 @@ import (
 
 // Config defines a structure which holds individual configuration parameters for the application
 type Config struct {
-	DBConnection   string `json:"db_connection"`
-	BindAddress    string `json:"bind_address"`
-	TLSCert        string `json:"tls_cert"`
-	TLSKey         string `json:"tls_key"`
-	VaultAddr      string `json:"vault_addr"`
-	VaultTokenFile string `json:"vault_token_file"`
-	PaymentsAPIKey string `json:"payments_api_key"`
+	BindAddress    string `json:"bind_address"`     // address to bind the server to
+	VaultAddr      string `json:"vault_addr"`       // address of the vault server
+	DBConnection   string `json:"db_connection"`    // postgres database connection string
+	PaymentsAPIKey string `json:"payments_api_key"` // static secret for the payments api
 }
 
 var configFile = env.String("CONFIG_FILE", false, "./config.json", "Path to JSON encoded config file")
+var tlsCert = env.String("TLS_CERT", false, "./tls/cert.pem", "Path to the PEM encoded TLS Certificate")
+var tlsKey = env.String("TLS_KEY", false, "./tls/key.pem", "Path to the PEM encoded Private Key")
+
 var log hclog.Logger
 var server *http.Server
+
+// global reference for the config
+var conf *config.File[*Config]
 
 func main() {
 	log = hclog.Default()
@@ -44,6 +47,9 @@ func main() {
 		configUpdated,
 	)
 	defer c.Close()
+	conf = c
+
+	writePid()
 
 	// load the Vault token
 	//d, err := ioutil.ReadFile(conf.VaultTokenFile)
@@ -77,29 +83,44 @@ func main() {
 
 	go startTLSServer(c.Get())
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
-	<-done // Will block here until user hits ctrl+c
+	waitForSignal()
+}
 
-	shutdownServer()
+func writePid() {
+	pid := os.Getpid()
+	pidBytes := []byte(fmt.Sprintf("%d", pid))
+
+	ioutil.WriteFile("./app.pid", pidBytes, os.ModePerm)
+
+	log.Info("Written pid to file", "pid", pid, "file", "./app.pid")
+}
+
+func waitForSignal() {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	sig := <-done // Will block here until user hits ctrl+c
+
+	// shutdown the server
+
+	switch sig {
+	case syscall.SIGHUP:
+		log.Info("Received SIGHUP, reloading")
+		configUpdated(conf.Get())
+		waitForSignal()
+	default:
+		shutdownServer()
+	}
 }
 
 func startTLSServer(conf *Config) {
 	log.Info("Starting Server", "bind", conf.BindAddress)
 
-	certByte, _ := base64.StdEncoding.DecodeString(conf.TLSCert)
-	keyByte, _ := base64.StdEncoding.DecodeString(conf.TLSKey)
-
-	cert, _ := tls.X509KeyPair(certByte, keyByte)
-
-	cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
-
 	server = &http.Server{
-		Addr:      conf.BindAddress,
-		TLSConfig: cfg,
+		Addr: conf.BindAddress,
 	}
 
-	err := server.ListenAndServeTLS("", "")
+	// start the server with the provided certificates
+	err := server.ListenAndServeTLS(*tlsCert, *tlsKey)
 	if err != nil && err != http.ErrServerClosed {
 		log.Error("Unable to start server", "error", err)
 	}

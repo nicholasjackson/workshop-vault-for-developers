@@ -3,6 +3,8 @@
     {"uri": "http://localhost:3000/", "title": "Docs"}
   ],
   "terminals": [
-    {"name": "Vault", "viewColumn": 1}
+    {"name": "Vault", "viewColumn": 1},
+    {"name": "Agent", "viewColumn": 2}
+    {"name": "App", "viewColumn": 2}
   ]
 }

@@ -157,7 +157,7 @@ vault write -f --format=json \
   > .secret-id
 ```
 
-If you cat the file you will see the secret-id has been succesfully written.
+If you cat the file you will see the secret-id has been successfully written.
 
 <VSCodeTerminal target="Vault">
   <Command>cat .secret-id</Command>
@@ -166,3 +166,6 @@ If you cat the file you will see the secret-id has been succesfully written.
 ```shell
 cat .secret-id
 ```
+
+Now the authentication has been setup, let's configure Vault Agent to retrieve
+your secrets.

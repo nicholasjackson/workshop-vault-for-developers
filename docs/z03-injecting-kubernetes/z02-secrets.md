@@ -91,6 +91,8 @@ spec:
         vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
         vault.hashicorp.com/agent-inject-template-config: |
           {
+          "bind_address": ":9091",
+          "vault_addr": "http://localhost:8200",
           {{ with secret "database/creds/db-app" -}}
           "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard"
           {{- end }}
@@ -185,6 +187,8 @@ vault kv get --format=json kv2/payments
     vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
     vault.hashicorp.com/agent-inject-template-config: |
       {
+      "bind_address": ":9091",
+      "vault_addr": "http://localhost:8200",
       {{ with secret "database/creds/db-app" -}}
       "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
       {{- end }}

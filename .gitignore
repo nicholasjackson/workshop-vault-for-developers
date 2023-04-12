@@ -2,3 +2,14 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform
 hc-*.json
+.role-id
+.secret-id
+ca.pem
+cert.pem
+tls/
+certs.txt
+config.json
+encrypted.txt
+working/app/app.pid
+certfile.txt
+.envrc
