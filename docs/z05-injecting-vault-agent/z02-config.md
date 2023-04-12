@@ -3,7 +3,7 @@ title: Configuring Vault Agent
 sidebar_label: Configuring Vault Agent
 ---
 
-Create a new file in the folder `./vault_agent` called `agent-config.hcl`.
+Create a new file in the folder `./vault_agent` called `config.hcl`.
 You will then work through the agent config 
 
 ## Configuring the Vault Stanza
@@ -12,7 +12,7 @@ Vault Agent needs to know the location of the Vault server, in our example
 system this is accessible at `http://localhost:8200`. Let's add the `vault`
 stanza block to the file you just created.
 
-```javascript
+```javascript title="vault_agent/config.hcl"
 vault {
   address = "http://localhost:8200"
   retry {
@@ -36,7 +36,7 @@ specific configuration.
 Add this configuration to your `agent-config.hcl` file after the `vault` 
 stanza.
 
-```javascript
+```javascript title="vault_agent/config.hcl"
 auto_auth {
   method {
     type = "approle"
@@ -96,12 +96,12 @@ certificates are written to the files `./tls/cert.pem` and `./tls/key.pem`.
 
 Add this section to your `config.hcl` after the `auto_auth` stanza
 
-```javascript
+```javascript title="vault_agent/config.hcl"
 template {
   contents = <<-EOF
-    {{ with pkiCert "pki/issue/payments" "ttl=24h"}}
-      {{ .Data.Cert | writeToFile "./tls/cert.pem" "" "" "0644"}}
-      {{ .Data.Key | writeToFile "./tls/key.pem" "" "" "0644"}}
+    {{ with secret "pki/issue/payments" "ttl=24h"}}
+      {{ .Data.certificate | writeToFile "./tls/cert.pem" "" "" "0644"}}
+      {{ .Data.private_key | writeToFile "./tls/key.pem" "" "" "0644"}}
     {{ end }}
   EOF
 

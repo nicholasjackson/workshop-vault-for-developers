@@ -133,10 +133,12 @@ a JSON configuration file that looks like the following:
 
 ```json
 {
+
   "bind_address": ":9091",
-  "vault_addr": "http://localhost:8200",
-  "db_connection": "postgresql://username:password@localhost:5432/wizard",
-  "api_key": "{{ .Data.data.api_key }}"
+  "vault_addr": "http://localhost:8100",
+  "vault_encryption_key": "payments",
+  "db_connection": "postgresql://username:password@10.5.0.205:5432/wizard",
+  "api_key": "api_key"
 }
 ```
 
@@ -168,9 +170,10 @@ template {
   contents = <<-EOF
   {
     "bind_address": ":9091",
-    "vault_addr": "http://localhost:8200",
+    "vault_addr": "http://localhost:8100",
+    "vault_encryption_key": "payments",
     {{ with secret "database/creds/db-app" -}}
-    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
+    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@10.5.0.205:5432/wizard?sslmode=disable",
     {{- end }}
     {{- with secret "kv2/data/payments" }}
     "api_key": "{{ .Data.data.api_key }}"
@@ -205,7 +208,7 @@ vault agent --config=./vault_agent/config.hcl
 Once Vault Agent is up and running, you can check the `config.json`
 file that it has generated.
 
-<VSCodeTerminal target="Agent">
+<VSCodeTerminal target="Vault">
   <Command>cat config.json</Command>
 </VSCodeTerminal>
 
@@ -218,9 +221,10 @@ You should see something that looks like the following:
 ```json
 {
   "bind_address": ":9091",
-  "vault_addr": "http://localhost:8200",
-  "db_connection": "postgresql://v-approle-db-app-6trHV6O6tp5Z2dRqUwod-1681290387:mCorOdGBVi2E35NH-IFk@postgres:5432/wizard",
-  "api_key": "abc123"
+  "vault_addr": "http://localhost:8100",
+  "vault_encryption_key": "payments",
+  "db_connection": "postgresql://v-approle-db-app-5ImcvH7iTJNTlMIU9jQT-1681319397:c1n-7dTQCVafuYsuNVxJ@10.5.0.205:5432/wizard?sslmode=disable",
+  "api_key": "version3"
 }
 ```
 

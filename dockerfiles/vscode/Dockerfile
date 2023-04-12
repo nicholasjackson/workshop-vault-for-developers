@@ -5,7 +5,7 @@ FROM ubuntu
 ARG TARGETARCH
 
 # Install default packages
-RUN apt update && apt upgrade -y && apt install -y curl wget zip git jq build-essential
+RUN apt update && apt upgrade -y && apt install -y curl wget zip git jq build-essential  postgresql-client
 
 # Install Go
 COPY --from=golang /usr/local/go/ /usr/local/go/

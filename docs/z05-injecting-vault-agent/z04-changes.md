@@ -8,19 +8,19 @@ Let's first run our application and test that our config is valid.
 
 <VSCodeTerminal target="App">
   <Command>
-    cd ./working/app && \
-    CONFIG_FILE=../../config.json \
-    TLS_CERT=../../tls/cert.pem \
-    TLS_KEY=../../tls/key.pem \
+    cd ./app && \
+    CONFIG_FILE=../config.json \
+    TLS_CERT=../tls/cert.pem \
+    TLS_KEY=../tls/key.pem \
     go run main.go  
   </Command>
 </VSCodeTerminal>
 
 ```shell
-cd ./working/app && \
-CONFIG_FILE=../../config.json \
-TLS_CERT=../../tls/cert.pem \
-TLS_KEY=../../tls/key.pem \
+cd ./app && \
+CONFIG_FILE=../config.json \
+TLS_CERT=../tls/cert.pem \
+TLS_KEY=../tls/key.pem \
 go run main.go  
 ```
 

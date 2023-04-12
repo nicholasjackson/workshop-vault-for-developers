@@ -3,19 +3,7 @@ title: Secrets - Configuring dynamic secrets for PostgreSQL
 sidebar_label: Secrets - Configuring dynamic secrets for PostgreSQL
 ---
 
-Before you can configure Vault, you need a database. In this example, you will deploy the database to Kubernetes for convenience. You could also use a database from a managed cloud offering or running in a virtual machine or on physical hardware.
-
-A PostgresSQL database has already been deploy to your cluster into the `default` namespace, you can see this by running the following command.
-
-<VSCodeTerminal target="Vault">
-  <Command>kubectl get deployments postgres</Command>
-  <Command>kubectl get svc postgres</Command>
-</VSCodeTerminal>
-
-```shell
-kubectl get deployments postgres
-kubectl get svc postgres
-```
+Before you can configure Vault, you need a database. A PostgresSQL database has already been deploy to your example environment.
 
 While this example focuses on the configuration for PostgreSQL, the workflow for configuration, creating roles, and generating credentials applies to any database.
 
@@ -114,7 +102,7 @@ You also need to define which roles can use this connection with the `allowed_ro
 For Vault to connect to the database, you define a standard connection string by setting the `connection_url` parameter. Rather than hardcoding the `username` and `password` in the connection string, you must use template variables to enable Vault's root credential rotation feature. This feature allows Vault to automatically rotate the root credentials for a database.
 
 ```
-postgresql://{{username}}:{{password}}@postgres:5432/wizard?sslmode=disable"
+postgresql://{{username}}:{{password}}@10.5.0.205:5432/wizard?sslmode=disable"
 ```
 
 Finally, you define `username` and `password` the initial credentials which Vault will use when connecting to your PostgreSQL database.
@@ -126,7 +114,7 @@ You apply this configuration with a `vault write` command. The path this time is
     vault write database/config/wizard \
       plugin_name=postgresql-database-plugin \
       allowed_roles="*" \
-      connection_url="postgresql://&#123;&#123;username}}:&#123;&#123;password}}@postgres.default.svc:5432/wizard?sslmode=disable" \
+      connection_url="postgresql://&#123;&#123;username}}:&#123;&#123;password}}@10.5.0.205:5432/wizard?sslmode=disable" \
       username="postgres" \
       password="password"
   </Command>
@@ -136,20 +124,15 @@ You apply this configuration with a `vault write` command. The path this time is
 vault write database/config/wizard \
     plugin_name=postgresql-database-plugin \
     allowed_roles="*" \
-    connection_url="postgresql://{{username}}:{{password}}@postgres.default.svc:5432/wizard?sslmode=disable" \
+    connection_url="postgresql://{{username}}:{{password}}@10.5.0.205:5432/wizard?sslmode=disable" \
     username="postgres" \
     password="password"
 ```
 
 ### Rotating the root credentials
 
-When you create a new database, you need to create root credentials for configuring additional users. In the example, you use the `POSTGRES_PASSWORD` environment variable your deployment definition to set the database password on initialization.
-
-```yaml
-env:
-  - name: POSTGRES_PASSWORD
-    value: password
-```
+When you create a new database, you need to create root credentials for configuring additional users. For convenience this has already been
+configured for the example database. You can use the super secure username `postgres` and the password `password`.
 
 Since Vault can manage credential creation for both humans and applications, you no longer need the original password. Vaults root rotation can automatically change this password to one only Vault can use.
 
@@ -167,18 +150,12 @@ After running this command, you can check that Vault has rotated the credentials
 
 <VSCodeTerminal target="Vault">
   <Command>
-    kubectl exec -it \
-      $(kubectl get pods --selector "app=postgres" -o jsonpath="&#123;.items[0].metadata.name}") \
-      -c postgres -- \
-      bash -c 'PGPASSWORD=password psql -U postgres'
+    PGPASSWORD=password psql -U postgres -h 10.5.0.205 wizard
   </Command>
 </VSCodeTerminal>
 
 ```shell
-kubectl exec -it \
-  $(kubectl get pods --selector "app=postgres" -o jsonpath="{.items[0].metadata.name}") \
-  -c postgres -- \
-  bash -c 'PGPASSWORD=password psql -U postgres'
+  PGPASSWORD=password psql -U postgres -h 10.5.0.205 wizard
 ```
 
 Finally you can test the generation of credentials for your application by using the `vault read database/creds/<role>` command. 
@@ -204,21 +181,15 @@ to the database.
     db_creds=$(vault read database/creds/db-app -format=json); \
     username=$(echo $&#123;db_creds} | jq -r .data.username); \
     password=$(echo $&#123;db_creds} | jq -r .data.password); \
-    kubectl exec -it \
-      $(kubectl get pods --selector "app=postgres" -o jsonpath="&#123;.items[0].metadata.name}") \
-      -c postgres -- \
-      bash -c "PGPASSWORD=$&#123;password} psql -U $&#123;username} wizard"
+    PGPASSWORD=$&#123;password} psql -U $&#123;username} -h 10.5.0.205 wizard
   </Command>
 </VSCodeTerminal>
 
 ```shell
 db_creds=$(vault read database/creds/db-app -format=json); \
-username=$(echo ${db_creds} | jq -r .data.username); \
-password=$(echo ${db_creds} | jq -r .data.password); \
-kubectl exec -it \
-  $(kubectl get pods --selector "app=postgres" -o jsonpath="{.items[0].metadata.name}") \
-  -c postgres -- \
-  bash -c "PGPASSWORD=${;password} psql -U ${;username} wizard"
+username=$(echo $&#123;db_creds} | jq -r .data.username); \
+password=$(echo $&#123;db_creds} | jq -r .data.password); \
+PGPASSWORD=$&#123;password} psql -U $&#123;username} -h 10.5.0.205 wizard
 ```
 
 You can see the data in the database using the following command:

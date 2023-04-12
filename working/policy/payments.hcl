@@ -7,13 +7,9 @@ path "kv2/data/payments" {
 }
 
 path "database/creds/db-app" {
-  capabilities = ["read"]
+  capabilities = ["update", "read"]
 }
 
 path "pki/issue/payments" {
-  capabilities = ["update"]
-}
-
-path "transit/encrypt/payments" {
   capabilities = ["update"]
 }

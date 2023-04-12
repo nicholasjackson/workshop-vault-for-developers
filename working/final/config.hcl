@@ -54,7 +54,7 @@ template {
     "vault_addr": "http://localhost:8100",
     "vault_encryption_key": "payments",
     {{ with secret "database/creds/db-app" -}}
-    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@localhost:5432/wizard?sslmode=disable",
+    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@10.5.0.205:5432/wizard?sslmode=disable",
     {{- end }}
     {{- with secret "kv2/data/payments" }}
     "api_key": "{{ .Data.data.api_key }}"

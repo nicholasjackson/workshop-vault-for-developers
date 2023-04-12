@@ -64,8 +64,7 @@ func main() {
 	// Create the vault client
 	vc := vault.NewClient(conf.Get().VaultAddr, conf.Get().VaultEncryptionKey, "")
 	if !vc.IsOK() {
-		log.Error("Unable to connect to Vault server")
-		os.Exit(1)
+		log.Warn("Unable to connect to Vault server, have you configured the local listener for Vault Agent?")
 	}
 
 	// Create the database connection

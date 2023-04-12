@@ -63,7 +63,7 @@ You also need to define capabilities (create, read, update, delete), or access l
 
 An example policy that would allow you to access both the `kv1` and `kv2` secrets is listed below.
 
-```javascript
+```javascript title="policy/payments.hcl"
 path "kv1/payments" {
   capabilities = ["read"]
 }
@@ -73,7 +73,7 @@ path "kv2/data/payments" {
 }
 
 path "database/creds/db-app" {
-  capabilities = ["update"]
+  capabilities = ["update", "read"]
 }
 ```
 
@@ -82,11 +82,11 @@ Create a new file in the folder `working` called `payments.hcl` and add the cont
 You can write the policy to Vault using the `vault policy write <name> <location>` command. Run the following command which will create a policy named `payments` from the example file.
 
 <VSCodeTerminal target="Vault">
-  <Command>vault policy write payments payments.hcl</Command>
+  <Command>vault policy write payments policy/payments.hcl</Command>
 </VSCodeTerminal>
 
 ```shell
-vault policy write payments payments.hcl
+vault policy write payments policy/payments.hcl
 ```
 
 ### Assigning Vault policy to Kubernetes Service Accounts 

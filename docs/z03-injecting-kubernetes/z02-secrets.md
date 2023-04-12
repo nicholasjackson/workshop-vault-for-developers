@@ -70,6 +70,7 @@ The final part of the annotations is to specify the role which will be used by t
 Putting all of this together you get a deployment which looks something like the following example:
 
 ```yaml
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -92,26 +93,27 @@ spec:
         vault.hashicorp.com/agent-inject-template-config: |
           {
           "bind_address": ":9091",
-          "vault_addr": "http://localhost:8200",
+          "vault_addr": "http://localhost:8100",
+          "vault_encryption_key": "payments",
           {{ with secret "database/creds/db-app" -}}
-          "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard"
+          "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@10.5.0.205:5432/wizard"
           {{- end }}
           }
     spec:
       serviceAccountName: payments
       containers:
         - name: payments
-          image: nicholasjackson/fake-service:v0.25.2
+          image: nicholasjackson/fake-service:v0.25.1
 ```
 
 This can then be deployed in the usual Kubernetes way.
 
 <VSCodeTerminal target="Vault">
-  <Command>kubectl apply -f ./working/payments.yaml</Command>
+  <Command>kubectl apply -f ./k8s_config/payments.yaml</Command>
 </VSCodeTerminal>
 
 ```shell
-kubectl apply -f ./working/payments.yaml
+kubectl apply -f ./k8s_config/payments.yaml
 ```
 
 The injector automatically modifies your deployment, adding a `vault-agent` container which has been configured to authenticate with the Vault, and to write the secrets into a shared volume.
@@ -175,27 +177,28 @@ vault kv get --format=json kv2/payments
 <details>
   <summary>Answer</summary>
 
-  Did you get it working?
+Did you get it working?
 
-  You should have updated the annotations in your `payments` deployment to 
-  look like the following.
+You should have updated the annotations in your `payments` deployment to 
+look like the following.
 
-  ```yaml
-  annotations:
-    vault.hashicorp.com/agent-inject: "true"
-    vault.hashicorp.com/role: "payments"
-    vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
-    vault.hashicorp.com/agent-inject-template-config: |
-      {
-      "bind_address": ":9091",
-      "vault_addr": "http://localhost:8200",
-      {{ with secret "database/creds/db-app" -}}
-      "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
-      {{- end }}
-      {{- with secret "kv2/data/payments"
-      "api_key": "{{ .Data.data.api_key }}"
-      {{- end }}
-      }
-  ```
+```yaml
+annotations:
+  vault.hashicorp.com/agent-inject: "true"
+  vault.hashicorp.com/role: "payments"
+  vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
+  vault.hashicorp.com/agent-inject-template-config: |
+    {
+    "bind_address": ":9091",
+    "vault_addr": "http://localhost:8100",
+    "vault_encryption_key": "payments",
+    {{ with secret "database/creds/db-app" -}}
+    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@10.5.0.205:5432/wizard",
+    {{- end }}
+    {{- with secret "kv2/data/payments" }}
+    "api_key": "{{ .Data.data.api_key }}"
+    {{- end }} 
+    }
+```
 </details>
 
