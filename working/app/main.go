@@ -10,7 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hashicorp/app/data"
 	"github.com/hashicorp/app/handlers"
+	"github.com/hashicorp/app/vault"
 	"github.com/hashicorp/go-hclog"
 	"github.com/nicholasjackson/config"
 	"github.com/nicholasjackson/env"
@@ -18,10 +20,11 @@ import (
 
 // Config defines a structure which holds individual configuration parameters for the application
 type Config struct {
-	BindAddress    string `json:"bind_address"`     // address to bind the server to
-	VaultAddr      string `json:"vault_addr"`       // address of the vault server
-	DBConnection   string `json:"db_connection"`    // postgres database connection string
-	PaymentsAPIKey string `json:"payments_api_key"` // static secret for the payments api
+	BindAddress        string `json:"bind_address"`         // address to bind the server to
+	VaultAddr          string `json:"vault_addr"`           // address of the vault server
+	VaultEncryptionKey string `json:"vault_encryption_key"` // name of the Vault encryption key to use
+	DBConnection       string `json:"db_connection"`        // postgres database connection string
+	PaymentsAPIKey     string `json:"payments_api_key"`     // static secret for the payments api
 }
 
 var configFile = env.String("CONFIG_FILE", false, "./config.json", "Path to JSON encoded config file")
@@ -59,26 +62,26 @@ func main() {
 	//}
 
 	// Create the vault client
-	//vc := vault.NewClient(conf.VaultAddr, string(d))
-	//if !vc.IsOK() {
-	//	log.Error("Unable to connect to Vault server")
-	//	os.Exit(1)
-	//}
+	vc := vault.NewClient(conf.Get().VaultAddr, conf.Get().VaultEncryptionKey, "")
+	if !vc.IsOK() {
+		log.Error("Unable to connect to Vault server")
+		os.Exit(1)
+	}
 
 	// Create the database connection
-	//db, err := data.New(conf.DBConnection, 60*time.Second)
-	//if err != nil {
-	//	log.Error("Unable to connect to database", "error", err)
-	//	os.Exit(1)
-	//}
+	db, err := data.New(conf.Get().DBConnection, 60*time.Second)
+	if err != nil {
+		log.Error("Unable to connect to database", "error", err)
+		os.Exit(1)
+	}
 
 	//// Create the product handler
-	//hc := handlers.NewCoffee(db, log)
-	//hp := handlers.NewPay(vc, log)
+	hc := handlers.NewCoffee(db, log)
+	hp := handlers.NewPay(vc, log)
 	hh := handlers.NewHealth(log)
 
-	//http.Handle("/", hc)
-	//http.Handle("/pay", hp)
+	http.Handle("/coffee", hc)
+	http.Handle("/pay", hp)
 	http.Handle("/health", hh)
 
 	go startTLSServer(c.Get())

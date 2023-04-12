@@ -23,3 +23,23 @@ k8s_config "postgres" {
   ]
   wait_until_ready = false
 }
+
+ingress "postgres" {
+  source {
+    driver = "local"
+    
+    config {
+      port = 5432
+    }
+  }
+  
+  destination {
+    driver = "k8s"
+    
+    config {
+      cluster = "k8s_cluster.dc1"
+      address = "postgres.default.svc"
+      port = 5432
+    }
+  }
+}

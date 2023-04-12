@@ -17,7 +17,13 @@ auto_auth {
   }
 }
 
-cache {}
+cache {
+}
+
+api_proxy {
+  use_auto_auth_token = "force"
+  enforce_consistency = "always"
+}
 
 listener "tcp" {
   address     = "127.0.0.1:8100"
@@ -36,7 +42,9 @@ template {
   destination = "cert.pem"
 
   exec {
-    command = "kill -HUP $(cat ./working/app/app.pid)"
+    // adding | true to the command will stop Vault agent from retrying
+    // should the sighup fail
+    command = "kill -HUP $(cat ./working/app/app.pid) | true"
   }
 }
 
@@ -44,9 +52,10 @@ template {
   contents = <<-EOF
   {
     "bind_address": ":9091",
-    "vault_addr": "http://localhost:8200",
+    "vault_addr": "http://localhost:8100",
+    "vault_encryption_key": "payments",
     {{ with secret "database/creds/db-app" -}}
-    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgres:5432/wizard",
+    "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@localhost:5432/wizard?sslmode=disable",
     {{- end }}
     {{- with secret "kv2/data/payments" }}
     "api_key": "{{ .Data.data.api_key }}"

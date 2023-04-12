@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/docker/go/canonical/json"
@@ -31,9 +32,16 @@ func (p *Pay) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	pr := &PayRequest{}
 	defer r.Body.Close()
 
-	err := json.NewDecoder(r.Body).Decode(pr)
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		p.log.Error("Unable to decode body", "error", err)
+		p.log.Error("Unable to read request from client", "error", err)
+		rw.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = json.Unmarshal(body, pr)
+	if err != nil {
+		p.log.Error("Unable to decode client request", "body", string(body), "error", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
 	}

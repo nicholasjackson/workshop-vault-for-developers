@@ -13,3 +13,7 @@ path "database/creds/db-app" {
 path "pki/issue/payments" {
   capabilities = ["update"]
 }
+
+path "transit/encrypt/payments" {
+  capabilities = ["update"]
+}
