@@ -140,12 +140,12 @@ You can simulate this by running the following command
 
 <VSCodeTerminal target="Vault">
   <Command>
-  kill -HUP $(cat ./working/app/app.pid)
+  kill -HUP $(cat ./app/app.pid)
   </Command>
 </VSCodeTerminal>
 
 ```
-kill -HUP $(cat ./working/app/app.pid)
+kill -HUP $(cat ./app/app.pid)
 ```
 
 If you look at the output for the application you will see that the log
@@ -161,7 +161,7 @@ this HUP command.
 
 ```javascript
 exec {
-  command = "kill -HUP $(cat ./working/app/app.pid)"
+  command = "kill -HUP $(cat ./app/app.pid)"
 }
 ```
 
@@ -196,7 +196,7 @@ template {
   destination = "cert.pem"
 
   exec {
-    command = "kill -HUP $(cat ./working/app/app.pid) | true"
+    command = "kill -HUP $(cat ./app/app.pid) | true"
   }
 }
 ```

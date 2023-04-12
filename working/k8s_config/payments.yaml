@@ -24,18 +24,6 @@ spec:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: "payments"
         vault.hashicorp.com/agent-inject-secret-config: "database/creds/db-app"
-        vault.hashicorp.com/agent-inject-template-config: |
-          {
-          "bind_address": ":9091",
-          "vault_addr": "http://localhost:8100",
-          "vault_encryption_key": "payments",
-          {{ with secret "database/creds/db-app" -}}
-          "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@localhost:5432/wizard",
-          {{- end }}
-          {{- with secret "kv2/data/payments" }}
-          "api_key": "{{ .Data.data.api_key }}"
-          {{- end }} 
-          }
     spec:
       serviceAccountName: payments
       containers:

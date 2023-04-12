@@ -99,7 +99,7 @@ Add this section to your `config.hcl` after the `auto_auth` stanza
 ```javascript title="vault_agent/config.hcl"
 template {
   contents = <<-EOF
-    {{ with secret "pki/issue/payments" "ttl=24h"}}
+    {{ with secret "pki/issue/payments" "ttl=24h" "common_name=payments.demo.gs"}}
       {{ .Data.certificate | writeToFile "./tls/cert.pem" "" "" "0644"}}
       {{ .Data.private_key | writeToFile "./tls/key.pem" "" "" "0644"}}
     {{ end }}

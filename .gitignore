@@ -13,3 +13,6 @@ encrypted.txt
 working/app/app.pid
 certfile.txt
 .envrc
+.DS_Store
+working/ciphertext.txt
+working/test-demo-gs.pem

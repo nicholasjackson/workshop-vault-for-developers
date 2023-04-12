@@ -204,14 +204,14 @@ Your solution should look something like the following.
   <Command>
     vault write \
       transit/hmac/payments \
-      input=$(cat message.txt | base64)
+      input="$(cat message.txt | base64)"
   </Command>
 </VSCodeTerminal>
 
 ```shell
 vault write \
   transit/hmac/payments \
-  input=$(cat message.txt | base64)
+  input="$(cat message.txt | base64)"
 ```
 
 ```shell
