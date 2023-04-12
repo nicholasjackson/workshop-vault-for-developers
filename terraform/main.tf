@@ -74,7 +74,7 @@ resource "google_compute_instance" "default" {
 
   metadata_startup_script = templatefile(
     "${path.module}/cloud-init.sh",{
-      passcode=random_id.rnd[count.index].hex
+      passcode=random_id.rnd[0].hex
       code_suffix="-workshop-vscode.${var.domain}"
       docs_suffix="-workshop-docs.${var.domain}"
       docs_location="https://${count.index}-workshop-docs.${var.domain}/"
@@ -115,6 +115,6 @@ output "auth_codes" {
 
 output "links" {
   value = [
-    for pass in random_id.rnd.*.hex : "https://${index(random_id.rnd.*.hex,pass)}-workshop-vscode.${var.domain}?tkn=${pass}&folder=/working"
+    for pass in random_id.rnd.*.hex : "https://${index(random_id.rnd.*.hex,pass)}-workshop-vscode.${var.domain}?tkn=${random_id.rnd.0.hex}&folder=/working"
   ]
 }

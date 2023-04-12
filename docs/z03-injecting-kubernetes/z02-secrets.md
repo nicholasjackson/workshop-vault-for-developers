@@ -106,6 +106,21 @@ spec:
           image: nicholasjackson/fake-service:v0.25.1
 ```
 
+Add the following annotation to the `payments.yaml` file in the `k8s_config`
+folder.
+
+```yaml
+vault.hashicorp.com/agent-inject-template-config: |
+       {
+       "bind_address": ":9091",
+       "vault_addr": "http://localhost:8100",
+       "vault_encryption_key": "payments",
+       {{ with secret "database/creds/db-app" -}}
+       "db_connection": "postgresql://{{ .Data.username }}:{{ .Data.password }}@10.5.0.205:5432/wizard"
+       {{- end }}
+       }
+```
+
 This can then be deployed in the usual Kubernetes way.
 
 <VSCodeTerminal target="Vault">
