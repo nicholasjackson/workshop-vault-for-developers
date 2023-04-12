@@ -12,7 +12,7 @@ terraform {
 }
 
 variable "instances" {
-  default = 25
+  default = 1
 }
 
 variable "domain" {
